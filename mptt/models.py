@@ -476,7 +476,7 @@ class MPTTModel(models.Model, metaclass=MPTTModelBase):
 
     @raise_if_unsaved
     def get_ancestors(self, ascending=False, include_self=False):
-        """
+        """ 获取祖先
         Creates a ``QuerySet`` containing the ancestors of this model
         instance.
 
@@ -509,9 +509,9 @@ class MPTTModel(models.Model, metaclass=MPTTModelBase):
                 right += 1
 
             qs = self._tree_manager._mptt_filter(
-                left__lte=left,
-                right__gte=right,
-                tree_id=self._mpttfield('tree_id'),
+                left__lte=left,    # 小于等于左值
+                right__gte=right,  # 大于等于右值
+                tree_id=self._mpttfield('tree_id'),  # 同一棵树
             )
 
             qs = qs.order_by(order_by)
@@ -640,7 +640,7 @@ class MPTTModel(models.Model, metaclass=MPTTModelBase):
 
     @raise_if_unsaved
     def get_next_sibling(self, *filter_args, **filter_kwargs):
-        """
+        """ 获取下一个兄弟
         Returns this model instance's next sibling in the tree, or
         ``None`` if it doesn't have a next sibling.
         """
@@ -654,7 +654,7 @@ class MPTTModel(models.Model, metaclass=MPTTModelBase):
         else:
             qs = self._tree_manager._mptt_filter(
                 qs,
-                parent__pk=getattr(self, self._mptt_meta.parent_attr + '_id'),
+                parent__pk=getattr(self, self._mptt_meta.parent_attr + '_id'),  # 同一个父级
                 left__gt=self._mpttfield('right'),
             )
 
@@ -663,7 +663,7 @@ class MPTTModel(models.Model, metaclass=MPTTModelBase):
 
     @raise_if_unsaved
     def get_previous_sibling(self, *filter_args, **filter_kwargs):
-        """
+        """ 获取前一个兄弟
         Returns this model instance's previous sibling in the tree, or
         ``None`` if it doesn't have a previous sibling.
         """
@@ -689,7 +689,7 @@ class MPTTModel(models.Model, metaclass=MPTTModelBase):
 
     @raise_if_unsaved
     def get_root(self):
-        """
+        """ 获取树根
         Returns the root node of this model instance's tree.
         """
         if self.is_root_node() and type(self) == self._tree_manager.tree_model:
@@ -702,7 +702,7 @@ class MPTTModel(models.Model, metaclass=MPTTModelBase):
 
     @raise_if_unsaved
     def get_siblings(self, include_self=False):
-        """
+        """ 获取兄弟
         Creates a ``QuerySet`` containing siblings of this model
         instance. Root nodes are considered to be siblings of other root
         nodes.
@@ -714,13 +714,13 @@ class MPTTModel(models.Model, metaclass=MPTTModelBase):
             queryset = self._tree_manager._mptt_filter(parent=None)
         else:
             parent_id = getattr(self, self._mptt_meta.parent_attr + '_id')
-            queryset = self._tree_manager._mptt_filter(parent__pk=parent_id)
+            queryset = self._tree_manager._mptt_filter(parent__pk=parent_id)  # 相同的父级
         if not include_self:
             queryset = queryset.exclude(pk=self.pk)
         return queryset
 
     def get_level(self):
-        """
+        """ 获取层数
         Returns the level of this node (distance from root)
         """
         return getattr(self, self._mptt_meta.level_attr)
